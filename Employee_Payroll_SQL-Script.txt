@@ -1,0 +1,105 @@
+create  database payroll_service_DB; -- Create database
+create table employee_payroll_tbl  -- Create Table
+( 
+EmployeeId int AUTO_INCREMENT PRIMARY KEY NOT NUll,
+EmployeeName varchar(255) NOT NULL ,
+Salary double NOT NULL,
+StartDate Date NOT NULL
+) ; 
+insert 	into employee_payroll_tbl(EmployeeName,Salary,StartDate)values 
+('Bill', 600000.00, '2021-01-03'),
+('Mark', 400000.00, '2021-02-13'),
+('Charlie',300000.00, '2021-04-05');
+
+SELECT * FROM employee_payroll_tbl;
+
+select Salary from employee_payroll_tbl WHERE EmployeeName ='Bill';
+
+ALTER TABLE employee_payroll_tbl ADD Gender char(1) AFTER EmployeeName;
+UPDATE employee_payroll_tbl
+SET Gender ='M'
+WHERE EmployeeId IN (1,2,3);
+
+insert 	into employee_payroll_tbl(EmployeeName,Salary,StartDate,Gender)values 
+('Terisa', 3000000.00, '2021-07-13','F');
+
+SELECT SUM(Salary) from employee_payroll_tbl WHERE Gender = 'F' GROUP BY Gender;
+SELECT SUM(Salary) from employee_payroll_tbl WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT avg(Salary) from employee_payroll_tbl WHERE Gender = 'F' GROUP BY Gender;
+SELECT avg(Salary) from employee_payroll_tbl WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT min(Salary) from employee_payroll_tbl WHERE Gender = 'F' GROUP BY Gender;
+SELECT min(Salary) from employee_payroll_tbl WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT max(Salary) from employee_payroll_tbl WHERE Gender = 'F' GROUP BY Gender;
+SELECT max(Salary) from employee_payroll_tbl WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT count(Salary) from employee_payroll_tbl WHERE Gender = 'F' GROUP BY Gender;
+SELECT count(Salary) from employee_payroll_tbl WHERE Gender = 'M' GROUP BY Gender;
+
+-- Ability to extend employee_payroll data to store employee information like employee phone, address and department - UC-8
+
+ALTER TABLE employee_payroll_tbl ADD (PhoneNumber varchar(50), Address varchar(255) ); 
+
+ALTER TABLE employee_payroll_tbl ADD (Department varchar(50) NOT NULL default '[N/A]')  ;
+UPDATE employee_payroll_tbl
+SET Department ='Sales'
+WHERE EmployeeId =4;
+UPDATE employee_payroll_tbl
+SET BasicPay = 3000000
+WHERE EmployeeId =4;
+
+SELECT * from employee_payroll_tbl;
+ALTER TABLE employee_payroll_tbl ADD (BasicPay float,Deductions float,TaxablePay float,Tax float, NetPay float);
+
+insert 	into employee_payroll_tbl (EmployeeName,Salary,StartDate,Department,Gender,BasicPay ,Deductions ,TaxablePay ,Tax , NetPay)values 
+('Terisa', 50000, '2021-05-03','Marketing','F',3000000, 1000000,2000000,500000,1500000);
+-- Ability to make Terissa as part of Sales and Marketing Department UC-10
+SELECT * from employee_payroll_tbl WHERE EmployeeName = 'Terisa';
+
+CREATE table EmployeeDepartment_tbl( EmployeeID int ,
+DepartmentID varchar(50) NOT NULL,
+FOREIGN KEY (EmployeeID) REFERENCES employee_payroll_tbl(EmployeeID)
+);
+ALTER TABLE EmployeeDepartment_tbl
+ADD FOREIGN KEY (EmployeeID) REFERENCES employee_payroll_tbl(EmployeeID);
+SELECT * FROM EmployeeDepartment_tbl;
+insert 	into EmployeeDepartment_tbl (EmployeeId,DepartmentID)values 
+(1,'ECE12'),
+(2,'CSE34'),
+(3,'EEE56'),
+(4,'IT890'),
+(5,'EIE09');
+
+SELECT * FROM EmployeeDepartment_tbl; -- UC-11
+
+SELECT employee_payroll_tbl.EmployeeID,EmployeeDepartment_tbl.DepartmentID,employee_payroll_tbl.EmployeeName  
+FROM employee_payroll_tbl   
+JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID;  
+
+SELECT *  FROM employee_payroll_tbl   
+RIGHT JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID WHERE EmployeeName ='Bill' 
+OR StartDate between cast('2021-01-01' as Date ) AND DATE(NOW()) ;  
+
+SELECT SUM(Salary) FROM employee_payroll_tbl   
+RIGHT JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT AVG(Salary) FROM employee_payroll_tbl   
+RIGHT JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID WHERE Gender = 'F' GROUP BY Gender;
+
+SELECT MIN(Salary) FROM employee_payroll_tbl   
+RIGHT JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT MAX(Salary) FROM employee_payroll_tbl   
+RIGHT JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID WHERE Gender = 'M' GROUP BY Gender;
+
+SELECT COUNT(Salary) FROM employee_payroll_tbl   
+RIGHT JOIN EmployeeDepartment_tbl  
+ON employee_payroll_tbl.EmployeeID = EmployeeDepartment_tbl.EmployeeID WHERE Gender = 'M' GROUP BY Gender;
